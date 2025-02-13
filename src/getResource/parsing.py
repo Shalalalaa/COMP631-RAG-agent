@@ -12,14 +12,19 @@ def get_category_links():
     category_links = {}
 
     # 选取分类部分
-    category_div = soup.select_one("div.left")  # ✅ 选择正确的 div
-    for link in category_div.select("a"):  # ✅ 选择所有 <a> 标签
+    category_div = soup.select_one("div.left")  # ✅ 选择 `div.left`
+    for link in category_div.select("a"):
         category_name = link.text.strip()
-        category_url = BASE_URL + link["href"]  # 拼接完整 URL
+        category_url = link["href"]
+
+        # ✅ 处理相对路径，避免重复 `https://www.zgjmorg.com//renwu/`
+        if not category_url.startswith("http"):
+            category_url = BASE_URL.rstrip("/") + "/" + category_url.lstrip("/")
 
         category_links[category_name] = category_url
 
     return category_links
+
 
 # 测试是否能正确获取分类
 category_links = get_category_links()
