@@ -1,7 +1,27 @@
 # COMP631-RAG-agent
 
 1. instlall the dependency to parsing the website to get the resource
-    pip install requests beautifulsoup4 pymongo schedule
+    pip install requests beautifulsoup4
+
+2. check how many documents I already stored
+   find data/ZhouGong -type f -name "*.json" | wc -l
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 1. install the database
