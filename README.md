@@ -1,29 +1,29 @@
 # COMP631-RAG-agent
 
+
+## Resources:
+[OPEN ALEX API](https://docs.openalex.org/how-to-use-the-api/api-overview)
+<br>
+[ZhouGongJieMeng](https://www.zgjmorg.com)
+
+<br>
 1. instlall the dependency to parsing the website to get the resource
-    pip install requests beautifulsoup4
-
+    `pip install requests beautifulsoup4`
+<br>
 2. check how many documents I already stored
-   find data/ZhouGong -type f -name "*.json" | wc -l
+   `find data/ZhouGong -type f -name "*.json" | wc -l`
 
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+---------------------------------------------------- ignore this now ------------------------------------------------------------------------------
+- [Markdown cheet sheet](https://www.markdownguide.org/cheat-sheet/)
 1. install the database
 MacOS
 - download Docker to deploy
