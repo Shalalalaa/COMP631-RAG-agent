@@ -12,12 +12,12 @@ def get_category_links():
     category_links = {}
 
     # 选取分类部分
-    category_div = soup.select_one("div.left")  # ✅ 选择 `div.left`
+    category_div = soup.select_one("div.left")
     for link in category_div.select("a"):
         category_name = link.text.strip()
         category_url = link["href"]
 
-        # ✅ 处理相对路径，避免重复 `https://www.zgjmorg.com//renwu/`
+        # avoid repeat
         if not category_url.startswith("http"):
             category_url = BASE_URL.rstrip("/") + "/" + category_url.lstrip("/")
 
@@ -26,9 +26,8 @@ def get_category_links():
     return category_links
 
 
-# 测试是否能正确获取分类
 category_links = get_category_links()
-print(category_links)  # ✅ 运行后应输出 {'交通运输': 'https://www.example.com/wupin/jiaotong/', ...}
+print(category_links)
 
 
 # import os
