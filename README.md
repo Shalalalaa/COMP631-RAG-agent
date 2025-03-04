@@ -22,6 +22,19 @@
 <br>
 <br>
 
+Task1:
+crawling data
+
+Task2:
+create the retriever
+1. Need to convert the articles(PDF files) we crawled from the PMC into CSV files -----> csvpmc.py
+2. Covert the zgjm json file to csv file ----->csvzgjm.py
+3. Create dataset in hugging face ----->loaddata.py
+       a. create an account in hugging face
+       b. create and get the token
+       c. upload dataset to the cloud space
+4. 
+
 ---------------------------------------------------- ignore this now ------------------------------------------------------------------------------
 - [Markdown cheet sheet](https://www.markdownguide.org/cheat-sheet/)
 1. install the database
