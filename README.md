@@ -30,10 +30,11 @@ create the retriever
 1. Need to convert the articles(PDF files) we crawled from the PMC into CSV files -----> csvpmc.py
 2. Covert the zgjm json file to csv file ----->csvzgjm.py
 3. Create dataset in hugging face ----->loaddata.py
-       a. create an account in hugging face
-       b. create and get the token
-       c. upload dataset to the cloud space
-4. 
+       - a. create an account in hugging face
+       - b. create and get the token
+       - c. upload dataset to the cloud space
+4. Create new space with blank Gradio to do the data preprocessing
+5. 
 
 ---------------------------------------------------- ignore this now ------------------------------------------------------------------------------
 - [Markdown cheet sheet](https://www.markdownguide.org/cheat-sheet/)
