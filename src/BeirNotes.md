@@ -84,7 +84,26 @@ docker cp es01:/usr/share/elasticsearch/config/certs/http_ca.crt .
 在 “使用此证书时” 选择 “始终信任”
 关闭窗口，系统可能会要求输入密码以确认更改
 
+设置环境变量
+export ELASTIC_PASSWORD="your_password"
+这样，系统会把 your_password 存储在 ELASTIC_PASSWORD 这个变量中，在当前终端窗口有效。
 
+export ELASTIC_PASSWORD="dfp15E8oiP6HEOF+MUdx"
+在命令中使用它 你可以这样调用 API，而不需要每次输入密码：
+
+curl -k -u elastic:$ELASTIC_PASSWORD https://localhost:9200
+其中 $ELASTIC_PASSWORD 会自动替换成你设置的密码。
+🔹 如何让它永久生效？
+export ELASTIC_PASSWORD="your_password" 只在当前 终端会话 内有效，关闭终端后就失效了。
+
+如果想让它永久生效，你可以：
+
+echo 'export ELASTIC_PASSWORD="your_password"' >> ~/.zshrc  # macOS (zsh)
+echo 'export ELASTIC_PASSWORD="your_password"' >> ~/.bashrc  # Linux (bash)
+然后运行：
+
+source ~/.zshrc  # 或者 source ~/.bashrc
+这样，每次打开终端都会自动加载这个变量。
 
 
    
@@ -93,11 +112,27 @@ docker cp es01:/usr/share/elasticsearch/config/certs/http_ca.crt .
    check local machine:
    https://elastic:dfp15E8oiP6HEOF+MUdx@localhost:9200
    
-6. 
+6. hsydeMacBook-Pro:~ hsy$ curl --cacert http_ca.crt -u elastic:$ELASTIC_PASSWORD https://localhost:9200
+{
+  "name" : "e3c4239a3fe3",
+  "cluster_name" : "docker-cluster",
+  "cluster_uuid" : "wTuxrn4SQI6CPQh2Ee6jzQ",
+  "version" : {
+    "number" : "8.17.3",
+    "build_flavor" : "default",
+    "build_type" : "docker",
+    "build_hash" : "a091390de485bd4b127884f7e565c0cad59b10d2",
+    "build_date" : "2025-02-28T10:07:26.089129809Z",
+    "build_snapshot" : false,
+    "lucene_version" : "9.12.0",
+    "minimum_wire_compatibility_version" : "7.17.0",
+    "minimum_index_compatibility_version" : "7.0.0"
+  },
+  "tagline" : "You Know, for Search"
+}
+hsydeMacBook-Pro:~ hsy$ 
+
 
 
 [//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job. There is no need to format nicely because it shouldn't be seen. Thanks SO - http://stackoverflow.com/questions/4823468/store-comments-in-markdown-syntax)
-
-   [dill]: <https://github.com/joemccann/dillinger>
-   [git-repo-url]: <https://github.com/joemccann/dillinger.git>
    [Beir Github]: <https://github.com/beir-cellar/beir/wiki/Installing-beir>
