@@ -21,7 +21,11 @@ The environment I used is **macOS Docker**. This follows the guide from the [Bei
    ```bash
    pip install beir
    ```
-2. Download Elasticsearch from [Elasticsearch Website](https://www.elastic.co/cn/downloads/elasticsearch):
+   Meet problems it seems like miss rust, so download
+   brew install rust
+   
+
+3. Download Elasticsearch from [Elasticsearch Website](https://www.elastic.co/cn/downloads/elasticsearch):
    - [Docker version](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html)
 
    ```bash
@@ -104,3 +108,44 @@ e3c4239a3fe3   docker.elastic.co/elasticsearch/elasticsearch:8.17.3   "/bin/tini
 
 (base) hsydeMacBook-Pro:COMP631Project hsy$ docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' es01
 172.18.0.2
+
+
+
+
+如果你想删除 Conda 环境
+如果你不再需要 comp631 这个环境，并且想删除它，可以使用：
+conda remove --name comp631 --all
+conda remove --name beir_env --all
+然后再运行：
+conda env list
+确认它已经被删除。
+
+
+如果你要切换到另一个 Conda 环境
+如果你想换到其他环境，比如 beir_env，可以运行：
+conda activate beir_env
+这样你就进入了新的环境。
+删除本地环境的beir和缓存，避免冲突
+pip3 uninstall -y beir
+pip3 cache purge
+python3 -m pip show beir
+
+pip list 可以检所有用pip下载的东西
+
+
+some simple queries:
+
+{"_id": "q1", "text": "What are the psychological interpretations of dreaming about water?"}
+{"_id": "q2", "text": "Cognitive neuroscience theories on lucid dreaming"}
+{"_id": "q3", "text": "The impact of REM sleep on memory consolidation"}
+{"_id": "q4", "text": "Symbolism of dreams in Freudian psychoanalysis"}
+{"_id": "q5", "text": "How do emotions affect dream recall?"}
+{"_id": "q6", "text": "Neuroscientific studies on nightmare disorders"}
+{"_id": "q7", "text": "Machine learning applications in dream analysis"}
+{"_id": "q8", "text": "Jungian dream analysis and its applications"}
+{"_id": "q9", "text": "Differences between lucid dreaming and normal dreaming"}
+{"_id": "q10", "text": "The role of subconscious mind in dream formation"}
+
+
+
+
