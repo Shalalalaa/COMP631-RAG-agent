@@ -3,6 +3,18 @@
 ## _BEIR_
 
 ### Install the Dependency
+Use conda environment
+(base) hsydeMacBook-Pro:COMP631Project hsy$ conda env list
+
+# conda environments:
+#
+base                 * /usr/local/Caskroom/miniforge/base
+comp631                /usr/local/Caskroom/miniforge/base/envs/comp631
+
+(base) hsydeMacBook-Pro:COMP631Project hsy$ conda activate comp631
+(comp631) hsydeMacBook-Pro:COMP631Project hsy$
+
+
 The environment I used is **macOS Docker**. This follows the guide from the [Beir Github](https://github.com/beir-cellar/beir/wiki/Installing-beir).
 
 1. Firstly, I installed the Beir repository:
@@ -84,3 +96,11 @@ source ~/.zshrc  # Reload terminal settings
   ```
 
 ✅ **Elasticsearch is now running successfully!** 
+
+
+(base) hsydeMacBook-Pro:COMP631Project hsy$ docker ps
+CONTAINER ID   IMAGE                                                  COMMAND                  CREATED        STATUS        PORTS                              NAMES
+e3c4239a3fe3   docker.elastic.co/elasticsearch/elasticsearch:8.17.3   "/bin/tini -- /usr/l…"   42 hours ago   Up 42 hours   0.0.0.0:9200->9200/tcp, 9300/tcp   es01
+
+(base) hsydeMacBook-Pro:COMP631Project hsy$ docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' es01
+172.18.0.2
