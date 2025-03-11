@@ -54,7 +54,15 @@ To regenerate the token, run:
 docker exec -it es01 /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
 
 
-6. Log in to Kibana as the elastic user with the password that was generated when you started Elasticsearch.
+hsydeMacBook-Pro:~ hsy$ docker exec -it es01 /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
+WARNING: Owner of file [/usr/share/elasticsearch/config/users] used to be [root], but now is [elasticsearch]
+WARNING: Owner of file [/usr/share/elasticsearch/config/users_roles] used to be [root], but now is [elasticsearch]
+eyJ2ZXIiOiI4LjE0LjAiLCJhZHIiOlsiMTcyLjE4LjAuMjo5MjAwIl0sImZnciI6IjYzOTNmNGE5YzUyZTMzNWZlZjQ5NTUwMDc3NjMwMjgwMzc3YWE5NGQ2MjMwNGJhODYyMDY2MWJjZDRlNzk0ZDMiLCJrZXkiOiJLOUluaDVVQjg4RmVISmthb05udjpORmxMQzRCcFRRYXdBbTk2bkVGU3lnIn0=
+hsydeMacBook-Pro:~ hsy$ 
+
+
+
+7. Log in to Kibana as the elastic user with the password that was generated when you started Elasticsearch.
 To regenerate the password, run:
 docker exec -it es01 /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
 
