@@ -66,6 +66,10 @@ hsydeMacBook-Pro:~ hsy$
 To regenerate the password, run:
 docker exec -it es01 /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
 
+my username: elastic
+my password: dfp15E8oiP6HEOF+MUdx
+
+
 
 
 
