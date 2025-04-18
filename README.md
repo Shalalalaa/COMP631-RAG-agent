@@ -1,150 +1,103 @@
-# COMP631-RAG-agent
+# COMP631-RAG-Agent: Dream Analysis System
 
-pretentd
-## Resources:
-[OPEN ALEX API](https://docs.openalex.org/how-to-use-the-api/api-overview)
-<br>
-[ZhouGongJieMeng](https://www.zgjmorg.com)
+## 🎯 Project Purpose
 
-<br>
-1. instlall the dependency to parsing the website to get the resource
-    `pip install requests beautifulsoup4`
-<br>
-2. check how many documents I already stored
-   `find data/ZhouGong -type f -name "*.json" | wc -l`
+This project builds a full-stack **Dream Analysis Agent** that combines document retrieval and large language models (LLMs) to provide natural, structured, and psychologically grounded dream interpretations.
 
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
+It supports user input in **English** or **Chinese**, automatically retrieves relevant symbolic and scientific materials, and generates a coherent dream analysis.
 
-Task1:
-crawling data
+**Main Features:**
+- Retrieve both **folk dream interpretations** and **scientific psychological articles**.
+- Summarize and clean the retrieved text for better LLM prompting.
+- Generate structured dream analyses with sections: Symbolism Interpretation, Scientific Support, and Psychological Analysis.
+- Full frontend + backend stack for smooth user experience.
 
-Task2:
-create the retriever
-1. Need to convert the articles(PDF files) we crawled from the PMC into CSV files -----> csvpmc.py
-2. Covert the zgjm json file to csv file ----->csvzgjm.py
-3. Create dataset in hugging face ----->loaddata.py
-       - a. create an account in hugging face
-       - b. create and get the token
-       - c. upload dataset to the cloud space
-4. Create new space with blank Gradio to do the data preprocessing
-5. 
+---
 
----------------------------------------------------- ignore this now ------------------------------------------------------------------------------
-- [Markdown cheet sheet](https://www.markdownguide.org/cheat-sheet/)
-1. install the database
-MacOS
-- download Docker to deploy
-- install homebrew
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-- Install docker
-    brew install --cask docker
-- Install elasticsearch in docker
-hsydeMacBook-Pro:~ hsy$ docker run -d --name elasticsearch -p 9200:9200 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:8.5.3
+## 🛠️ Project Structure
 
-hsydeMacBook-Pro:~ hsy$ docker run -d --name elasticsearch -p 9200:9200 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:8.5.3
-Unable to find image 'docker.elastic.co/elasticsearch/elasticsearch:8.5.3' locally
-8.5.3: Pulling from elasticsearch/elasticsearch
-8812ca00b1da: Download complete 
-98900c908ae3: Download complete 
-c74d6ab43b68: Download complete 
-cea74c4ff319: Download complete 
-ff6142af9229: Download complete 
-52064ea931b6: Download complete 
-d0eb0fe83e8a: Download complete 
-e461483763d2: Download complete 
-073cc5fd4b12: Download complete 
-Digest: sha256:c9b454f73b1e2365d43f1f46f1b9464b981e5f98c1dd46fee01dbd5a4a446973
-Status: Downloaded newer image for docker.elastic.co/elasticsearch/elasticsearch:8.5.3
-e65f15b24a06f79ed7950de636689a195ed78e92e7e3948452542faf9471b8e0
-hsydeMacBook-Pro:~ hsy$ curl -X GET "localhost:9200"
-curl: (56) Recv failure: Connection reset by peer
-hsydeMacBook-Pro:~ hsy$ docker ps
-CONTAINER ID   IMAGE                                                 COMMAND                  CREATED          STATUS          PORTS                              NAMES
-e65f15b24a06   docker.elastic.co/elasticsearch/elasticsearch:8.5.3   "/bin/tini -- /usr/l…"   56 seconds ago   Up 55 seconds   0.0.0.0:9200->9200/tcp, 9300/tcp   elasticsearch
-hsydeMacBook-Pro:~ hsy$ 
+COMP631-RAG-agent/
+├── backend/           # FastAPI backend
+├── rag-frontend/      # React/Vite Next.js frontend
+├── retriever/         # retriever
+├── README.md
+├── requirements.txt
 
-Restart the elasticsearch by using the http, because the http is more for cloud develop, local will be easier to use http
-hsydeMacBook-Pro:~ hsy$ docker run -d --name elasticsearch -p 9200:9200 \
->   -e "discovery.type=single-node" \
->   -e "xpack.security.enabled=false" \
->   docker.elastic.co/elasticsearch/elasticsearch:8.5.3
-cc925b2c019009a7071ca3bd53c2e8a62feacc26a6531baf8743f27af62c2590
-hsydeMacBook-Pro:~ hsy$ curl -X GET "http://localhost:9200"
-{
-  "name" : "cc925b2c0190",
-  "cluster_name" : "docker-cluster",
-  "cluster_uuid" : "-yYKqdCQRx67S-v8hFihEw",
-  "version" : {
-    "number" : "8.5.3",
-    "build_flavor" : "default",
-    "build_type" : "docker",
-    "build_hash" : "4ed5ee9afac63de92ec98f404ccbed7d3ba9584e",
-    "build_date" : "2022-12-05T18:22:22.226119656Z",
-    "build_snapshot" : false,
-    "lucene_version" : "9.4.2",
-    "minimum_wire_compatibility_version" : "7.17.0",
-    "minimum_index_compatibility_version" : "7.0.0"
-  },
-  "tagline" : "You Know, for Search"
-}
-hsydeMacBook-Pro:~ hsy$ 
+---
+
+## 🚀 How to Run the Project
+
+### Prerequisites
+- Python 3.10+
+- Node.js (for frontend, v16+ recommended)
+- pip and npm installed
+
+---
+
+### Step 1: Clone the repository
+
+```bash
+git clone https://github.com/yourusername/COMP631-RAG-agent.git
+cd COMP631-RAG-agent
+```
+
+### Step 2: Install backend dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Step 3: Install frontend dependencies
+
+```bash
+cd rag-frontend
+npm install
+```
+
+### Step 4: Start backend and frontend servers
+
+Open **two terminals**:
+
+**Terminal 1 (Backend):**
+
+```bash
+cd COMP631-RAG-agent
+python -m backend.main
+```
+
+Backend runs at: http://localhost:8000
 
 
+**Terminal 2 (Frontend):**
+```bash
+cd COMP631-RAG-agent/rag-frontend
+npm run dev
+```
 
-- create index for the data
-    curl -X PUT "http://localhost:9200/dreams" -H "Content-Type: application/json" -d '{
-        "settings": {
-            "number_of_shards": 1,
-            "number_of_replicas": 0
-        },
-        "mappings": {
-            "properties": {
-            "category": { "type": "keyword" },
-            "title": { "type": "text" },
-            "content": { "type": "text" }
-            }
-        }
-    }'
+Frontend runs at: http://localhost:3000
 
-check if insert successfully
-http://localhost:9200/dreams/_search?pretty=true
-出现乱码
+Frontend automatically communicates with backend through API.
 
-在 macOS/Linux 终端里执行以下命令，确保 Terminal 支持 UTF-8
-echo $LANG
-终端没有返回任何东西，于是设置成支持它的
-export LANG=en_US.UTF-8
+## ⚙️ Important Notes
 
-创建索引
-curl -X PUT "http://localhost:9200/dreams" -H "Content-Type: application/json" -d '{
-  "settings": {
-    "number_of_shards": 1,
-    "number_of_replicas": 0
-  },
-  "mappings": {
-    "properties": {
-      "category": { "type": "keyword" },
-      "title": { "type": "text" },
-      "content": { "type": "text" }
-    }
-  }
-}'
-重新插入数据，确保 JSON 是 UTF-8
-curl -X POST "http://localhost:9200/dreams/_doc/1" -H "Content-Type: application/json; charset=UTF-8" -d '{
-  "category": "人物",
-  "title": "梦见老师",
-  "content": "梦见老师意味着你对自己期望很高..."
-}'
+- **Corpus data** must be pre-built and placed under `retriever/` folders.
+- **GPU strongly recommended** for LLM model loading (DeepSeek 1.5B requires ~6GB VRAM).
+- **Model and corpus download** are handled automatically through HuggingFace Hub if missing.
+- **Two types of sources** are guaranteed in retrieval results: folk dream interpretations and scientific articles.
 
+---
 
+## ✨ Future Improvements
 
+- Add multi-turn conversation support
+- Implement memory for dream histories
+- Fine-tune model outputs for more academic or creative styles
+- Auto-update scientific literature corpus periodically
 
+---
+
+## 📄 License
+
+This project is intended for academic and educational use only.
 
 
