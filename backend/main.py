@@ -383,34 +383,27 @@ async def analyze_dream(request: QueryRequest):
         user_text = request.text
         deep_thinking = request.deep_thinking
 
-        # Search
+        # Retrieval
         query = {"q1": user_text}
         results = retriever.search(query, top_k=20)
-
-        folk_contents = []
-        sci_contents = []
-
-        for doc_id, score in results["q1"].items():
+        folk_contents, sci_contents = [], []
+        for doc_id, _ in results.get("q1", {}).items():
             if doc_id in corpus:
-                if doc_id.startswith("PMC"):
-                    if len(sci_contents) < 3:
-                        sci_contents.append(corpus[doc_id]["text"])
-                else:
-                    if len(folk_contents) < 5:
-                        folk_contents.append(corpus[doc_id]["text"])
+                if doc_id.startswith("PMC") and len(sci_contents) < 3:
+                    sci_contents.append(corpus[doc_id]["text"])
+                elif not doc_id.startswith("PMC") and len(folk_contents) < 5:
+                    folk_contents.append(corpus[doc_id]["text"])
             if len(folk_contents) >= 5 and len(sci_contents) >= 3:
                 break
 
+        # Summarization
         summarized_folk = quick_summarize_clean(folk_contents, user_text)
         summarized_sci = quick_summarize_clean(sci_contents, user_text)
-
-        user_lang = detect_language(user_text)
-
         if not summarized_sci or len(summarized_sci) < 30:
-            summarized_sci = fallback_sci_zh if user_lang == "zh" else fallback_sci_en
+            summarized_sci = fallback_sci_zh if detect_language(user_text) == "zh" else fallback_sci_en
 
-        # Build Prompt
-        if user_lang == "zh":
+        # Prompt construction
+        if detect_language(user_text) == "zh":
             prompt = f"""
                     你是一位经验丰富的梦境分析师。
                     
@@ -432,44 +425,52 @@ async def analyze_dream(request: QueryRequest):
                     - 总字数控制在600-800字
                     """
         else:
-            if deep_thinking:
-                reasoning = "Before writing, silently conduct internal reasoning to organize your thoughts. Do not output any reasoning process."
-            else:
-                reasoning = "Start writing immediately without internal reasoning."
-
+            reasoning = (
+                "Before writing, silently conduct internal reasoning to organize your thoughts. Do not output any reasoning process."
+                if deep_thinking else
+                "Start writing immediately without internal reasoning."
+            )
             prompt = f"""
-                        You are an experienced dream analyst.
-                        
-                        {reasoning}
-                        
-                        Based on the content below, immediately write a coherent and natural dream analysis structured into three sections:
-                        
-                        1. [Dream Symbolism Interpretation]
-                        {summarized_folk}
-                        
-                        2. [Scientific Literature Support]
-                        {summarized_sci}
-                        
-                        3. [Summary and Psychological Analysis]
-                        
-                        Requirements:
-                        - Only output the structured three sections
-                        - Write in fluent English with a warm, supportive tone
-                        - Use rich vocabulary and varied sentence structures
-                        - Total word count between 600-800 words
-                        - Do not output any reasoning steps
-                        """
+                    You are an experienced dream analyst.
+                    
+                    {reasoning}
+                    
+                    Based on the content below, immediately write a coherent and natural dream analysis structured into three sections:
+                    
+                    1. [Dream Symbolism Interpretation]
+                    {summarized_folk}
+                    
+                    2. [Scientific Literature Support]
+                    {summarized_sci}
+                    
+                    3. [Summary and Psychological Analysis]
+                    
+                    Requirements:
+                    - Only output the structured three sections
+                    - Write in fluent English with a warm, supportive tone
+                    - Use rich vocabulary and varied sentence structures
+                    - Total word count between 600-800 words
+                    - Do not output any reasoning steps
+                    """
 
-        max_tokens = 800 if deep_thinking else 600
-
-        input_ids = tokenizer(prompt, return_tensors="pt", truncation=True, padding=True, max_length=2048).input_ids.to(device)
+        # Generate response
+        input_ids = tokenizer(
+            prompt,
+            return_tensors="pt",
+            truncation=True,
+            padding=True,
+            max_length=2048
+        ).input_ids.to(device)
         output_ids = model.generate(
             input_ids,
-            max_new_tokens=max_tokens,
+            max_new_tokens=800 if deep_thinking else 600,
             temperature=0.7,
             pad_token_id=tokenizer.eos_token_id
         )
-        answer = tokenizer.decode(output_ids[0], skip_special_tokens=True)
+
+        # Strip out prompt tokens
+        gen_ids = output_ids[0][ input_ids.shape[-1] : ]
+        answer = tokenizer.decode(gen_ids, skip_special_tokens=True)
 
         return {"answer": answer}
 
