@@ -412,25 +412,25 @@ async def analyze_dream(request: QueryRequest):
         # Build Prompt
         if user_lang == "zh":
             prompt = f"""
-你是一位经验丰富的梦境分析师。
-
-请根据以下内容直接撰写连贯自然的梦境解析，分为以下三部分：
-
-[梦境象征意义]
-{summarized_folk}
-
-[科学文献支持]
-{summarized_sci}
-
-[总结用户的心理状态与建议]
-结合梦境象征与科学理论推测用户心理状态，并给予积极、温暖、具有启发性的建议。
-
-要求：
-- 必须直接输出三部分内容
-- 不要解释你的思考过程
-- 保持中文，自然连贯，逻辑清晰
-- 总字数控制在600-800字
-"""
+                    你是一位经验丰富的梦境分析师。
+                    
+                    请根据以下内容直接撰写连贯自然的梦境解析，分为以下三部分：
+                    
+                    [梦境象征意义]
+                    {summarized_folk}
+                    
+                    [科学文献支持]
+                    {summarized_sci}
+                    
+                    [总结用户的心理状态与建议]
+                    结合梦境象征与科学理论推测用户心理状态，并给予积极、温暖、具有启发性的建议。
+                    
+                    要求：
+                    - 必须直接输出三部分内容
+                    - 不要解释你的思考过程
+                    - 保持中文，自然连贯，逻辑清晰
+                    - 总字数控制在600-800字
+                    """
         else:
             if deep_thinking:
                 reasoning = "Before writing, silently conduct internal reasoning to organize your thoughts. Do not output any reasoning process."
@@ -438,27 +438,27 @@ async def analyze_dream(request: QueryRequest):
                 reasoning = "Start writing immediately without internal reasoning."
 
             prompt = f"""
-You are an experienced dream analyst.
-
-{reasoning}
-
-Based on the content below, immediately write a coherent and natural dream analysis structured into three sections:
-
-1. [Dream Symbolism Interpretation]
-{summarized_folk}
-
-2. [Scientific Literature Support]
-{summarized_sci}
-
-3. [Summary and Psychological Analysis]
-
-Requirements:
-- Only output the structured three sections
-- Write in fluent English with a warm, supportive tone
-- Use rich vocabulary and varied sentence structures
-- Total word count between 600-800 words
-- Do not output any reasoning steps
-"""
+                        You are an experienced dream analyst.
+                        
+                        {reasoning}
+                        
+                        Based on the content below, immediately write a coherent and natural dream analysis structured into three sections:
+                        
+                        1. [Dream Symbolism Interpretation]
+                        {summarized_folk}
+                        
+                        2. [Scientific Literature Support]
+                        {summarized_sci}
+                        
+                        3. [Summary and Psychological Analysis]
+                        
+                        Requirements:
+                        - Only output the structured three sections
+                        - Write in fluent English with a warm, supportive tone
+                        - Use rich vocabulary and varied sentence structures
+                        - Total word count between 600-800 words
+                        - Do not output any reasoning steps
+                        """
 
         max_tokens = 800 if deep_thinking else 600
 
@@ -478,6 +478,10 @@ Requirements:
         print("🔥 Error occurred:", str(e))
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
 
 # Run
 if __name__ == "__main__":
