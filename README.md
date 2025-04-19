@@ -62,6 +62,7 @@ Open **two terminals**:
 
 ```bash
 cd ..
+python -m pip install fastapi uvicorn
 python -m pip install torch torchvision torchaudio
 python -m backend.main
 ```
