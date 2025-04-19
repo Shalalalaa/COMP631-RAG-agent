@@ -37,7 +37,7 @@ COMP631-RAG-agent/
 ### Step 1: Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/COMP631-RAG-agent.git
+git clone https://github.com/Shalalalaa/COMP631-RAG-agent.git
 cd COMP631-RAG-agent
 ```
 
