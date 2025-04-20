@@ -405,7 +405,7 @@ async def analyze_dream(request: QueryRequest):
             summarized_sci = fallback_sci_zh if detect_language(user_text) == "zh" else fallback_sci_en
 
         # Prompt construction
-        if detect_language(user_text) == "zh":
+        if detect_language(user_text) == "zh-cn":
             prompt = f"""
                     你是一位富有同理心且经验丰富的梦境分析师。请以第一人称、温暖亲切的口吻，为客户撰写一段完整的梦境解读，结构分为以下三部分：
 
@@ -430,36 +430,30 @@ async def analyze_dream(request: QueryRequest):
                     **要求：**  
                     - 用中文回答，语言自然流畅  
                     - 以第一人称“我”进行叙述  
-                    - 全文控制在 600–800 字之间  
                     - 仅输出上述三部分内容，不要额外说明编写思路或技术细节  
                     """
-        else:
+        elif detect_language(user_text) == "en":
             reasoning = (
                 "Before writing, silently conduct internal reasoning to organize your thoughts. Do not output any reasoning process."
                 if deep_thinking else
                 "Start writing immediately without internal reasoning."
             )
             prompt = f"""
-                    You are an experienced dream analyst, and now you need to interpret a dream for your client. Respond warmly and personally in the first person.
+                    You are an empathetic and skilled dream analyst. Read the client’s dream context below, then respond warmly and personally in the first person (“I”) with a clear, three‑part interpretation:
+
+                    1. **Dream Symbolism Interpretation**  
+                       Identify and explain the key symbols from the dream, illustrating what they might represent in the client’s waking life.
                     
-                    {reasoning}
+                    2. **Scientific Literature Support**  
+                       Reference 2–3 relevant studies or psychological theories that back up your interpretations.
                     
-                    Based on the content below, write a coherent and natural dream analysis structured into three sections:
+                    3. **Psychological Summary & Practical Advice**  
+                       Summarize the client’s likely emotional state and offer encouraging, actionable suggestions for reflection or next steps.
                     
-                    1. [Dream Symbolism Interpretation]
-                    {summarized_folk}
-                    
-                    2. [Scientific Literature Support]
-                    {summarized_sci}
-                    
-                    3. [Summary and Psychological Analysis]
-                    
-                    Requirements:
-                    - Only output the structured three sections
-                    - Write in fluent English with a warm, supportive tone
-                    - Use rich vocabulary and varied sentence structures
-                    - Total word count between 600-800 words
-                    - Do not output any reasoning steps
+                    **Requirements:**  
+                    - Reply only with these three sections—no extra commentary.  
+                    - Write in fluent, warm, and supportive English using varied sentence structures.  
+                    - Do not include any of your internal reasoning or the prompt itself.
                     """
 
         # Generate response
