@@ -449,22 +449,47 @@ async def analyze_dream(request: QueryRequest):
                     """
         # 4. Generate
         
-        input_ids = tokenizer(
+        enc = tokenizer(
             prompt,
             return_tensors="pt",
             truncation=True,
-            padding=True,
+            padding=True,          # left‑pads to the longest sequence in the batch
             max_length=2048
-        ).input_ids.to(device)
+        )
+        
+        input_ids      = enc["input_ids"].to(device)
+        attention_mask = enc["attention_mask"].to(device)
+        
+        # ─── Ensure PAD token is defined and distinct from EOS ───────────────────────
+        if tokenizer.pad_token_id is None:
+            # add a new PAD token if the model / tokenizer doesn't have one
+            tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+            model.resize_token_embeddings(len(tokenizer))
+            model.config.pad_token_id = tokenizer.pad_token_id
+        
+        # ─── Generation hyper‑parameters ─────────────────────────────────────────────
+        # choose a shorter cap for Chinese to stay inside the 500‑character limit
+        max_tokens = 450 if lang.startswith("zh") else 950
+        
         generation_args = dict(
-            max_new_tokens=950,        
+            max_new_tokens=max_tokens,
             temperature=0.7,
             top_p=0.9,
             repetition_penalty=1.2,
             no_repeat_ngram_size=4,
-            pad_token_id=tokenizer.eos_token_id
+            eos_token_id=[
+                tokenizer.eos_token_id,                          # normal EOS
+                tokenizer("\n### END").input_ids[-1]             # custom hard stop
+            ],
+            pad_token_id=tokenizer.pad_token_id
         )
-        output_ids = model.generate(input_ids, **generation_args)
+        
+        # ─── Generate ────────────────────────────────────────────────────────────────
+        output_ids = model.generate(
+            input_ids=input_ids,
+            attention_mask=attention_mask,   # ★ pass the mask to avoid warning
+            **generation_args
+        )
 
         
             
