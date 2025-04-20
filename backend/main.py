@@ -410,7 +410,7 @@ async def analyze_dream(request: QueryRequest):
             prompt = f"""
                     你是一位富有同理心且经验丰富的梦境分析师,根据 {user_text}
                     请称呼对方为您，为客户撰写连贯且易懂的梦境解析，结构请严格输出以下格式写：
-                    <SectionStart>
+                    ```template
                     亲爱的用户您好，以下是您的梦境分析:
                     1. 梦境象征意义：
                        - {summarized_folk}
@@ -423,7 +423,7 @@ async def analyze_dream(request: QueryRequest):
                     3. 心理状态总结与建议：
                        - 总结概括客户当前的心理状态
                        - 为客户提供2–3条实际可行的温馨建议
-                    <SectionEnd>
+                    ```
                     要求：
                     - 语言自然连贯
                     - 字数少于500字
@@ -432,7 +432,7 @@ async def analyze_dream(request: QueryRequest):
         else:
             prompt = f"""
                     You are an empathetic and skilled dream analyst. Read the {user_text} below and treat the client as "You", please strictly returning this exact structure:
-                    <SectionStart>
+                    ```template
                     Dear Client, Here is the Dream Analysis for you:
                     
                     1. Dream Symbolism Interpretation:
@@ -446,7 +446,7 @@ async def analyze_dream(request: QueryRequest):
                     3. Psychological Summary & Practical Advice:
                        - Summarize the client’s probable mental state.
                        - Offer 2–3 warm, actionable suggestions to the user.
-                    <SectionEnd>
+                    ```
                     Requirements:
                     - Write in fluent, supportive English with varied sentence structure
                     - Word Count less than 800
