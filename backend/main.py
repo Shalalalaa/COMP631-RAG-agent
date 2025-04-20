@@ -419,16 +419,19 @@ async def analyze_dream(request: QueryRequest):
                     B. 回复必须为中文，总字数≤500字。  
                     C. 必须完整保留模板行次序，不得增删标题或行。  
                     D. 输出完毕后立即打印单独一行“### END”。
-                    E. 全程称呼用户为“您”，不得出现“客服”等其他称谓。
+                    E. 全程称呼用户为“您”，不得出现“客服”，“我们”或是“我”等其他称谓。
                     F. 解释与建议必须引用或呼应用户梦境描述中的元素，避免空泛套话。
-                    G. 必须生成中文内容
+                    G. 请确保全片内容都是中文
                     
                     <response>
                     亲爱的用户您好，以下是您的梦境分析:
                     1. 梦境象征意义：{summarized_folk}
                        - 请结合“{user_text}”等关键细节，说明上述意象与情绪或需求的联系。
+                       - 如果{summarized_folk}中的内容与{user_text}不相关可以忽略
+                       - 如果{summarized_folk}中的内容不是中文，请将其翻译成中文
                     2. 科学文献支持：{summarized_sci}
-                       - 简述研究如何印证第1点，并引用梦境中的元素佐证。
+                       - 简述研究如何印证第1点，并引用梦境中的元素佐证，如果{summarized_sci}中的内容与{user_text}不相关可以忽略。
+                       - 如果{summarized_sci}中的内容不是中文，请将其翻译成中文
                     3. 心理状态总结与建议：
                        - 概括您当前可能的心理状态。
                        - 建议1：____，建议理由：____
@@ -454,8 +457,12 @@ async def analyze_dream(request: QueryRequest):
                     Dear Client, here is your Dream Analysis:
                     1. Dream Symbolism Interpretation: {summarized_folk}
                        - Use Jungian symbolism or cognitive dream theory to relate the imagery to key details from the dream such as “{user_text}”, explaining what it may reveal about emotions or unmet needs.
+                       - If{summarized_folk}is not related to {user_text}, ignore it.
+                       - If{summarized_folk}is not English, then translate it to English.
                     2. Scientific Literature Support: {summarized_sci}
                        - Briefly state how the cited research corroborates the symbolism interpretation and connect it to specific elements of the dream.
+                       - If{summarized_sci}is not related to {user_text}, ignore it.
+                       - If{summarized_sci}is not English, then translate it to English.
                     3. Psychological Summary & Advice:
                        - Concisely summarise your likely psychological state (must reflect the dream content).
                        - Advice 1: ____ , Reason: ____
