@@ -387,7 +387,7 @@ async def analyze_dream(request: QueryRequest):
     try:
         user_text = request.text
         # Always respond in the user's input language
-        lang = detect_language(user_text)
+        lang = detect_language(user_text[0])
 
         # 1. Retrieval
         query = {"q1": user_text}
@@ -423,6 +423,10 @@ async def analyze_dream(request: QueryRequest):
                        - 概括您当前可能的心理状态。
                        - 建议1：_______，建议理由：_______
                        - 建议2：_______，建议理由：_______
+                    要求：
+                    - 全程称呼用户为“您”，不得出现“客服”等其他称谓。
+                    - 解释与建议必须引用或呼应用户梦境描述中的元素，避免空泛套话。
+                    - 必须生成中文内容
                     ### END
                     """
         else:
@@ -444,7 +448,7 @@ async def analyze_dream(request: QueryRequest):
                     Requirements:
                     - Address the client consistently as “You”; do not use any other pronouns or roles.
                     - All interpretations and advice must explicitly reference the client’s dream description; avoid generic wording.
-                    - Provide exactly three actionable pieces of advice, each followed by its corresponding reason.
+                    - Must return English
                     ### END
                     """
         # 4. Generate
