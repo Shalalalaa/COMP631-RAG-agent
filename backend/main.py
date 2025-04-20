@@ -408,51 +408,50 @@ async def analyze_dream(request: QueryRequest):
         # 3. Prompt
         if lang.startswith("zh"):
             prompt = f"""
-你是一位富有同理心且经验丰富的梦境分析师。
-请以第一人称“我”温暖亲切的口吻，为客户撰写连贯且易懂的梦境解析，结构分为三部分：
-
-【梦境分析】
-1. 梦境象征意义：
-   - 解读梦中关键意象的潜在含义
-   - 结合日常生活与心理学视角说明其可能反映的情感与需求
-
-2. 科学文献支持：
-   - 简洁引用2–3条相关研究或经典理论
-   - 说明它们如何验证上述象征意义
-
-3. 心理状态总结与建议：
-   - 概括客户当前的心理状态
-   - 提供2–3条实际可行的温馨建议
-
-要求：
-- 必须以“梦境分析”标题开头
-- 严格输出上述三部分，不要多余说明
-- 全文600–800字，语言自然连贯
-"""
+                    你是一位富有同理心且经验丰富的梦境分析师。
+                    请以第一人称“我”温暖亲切的口吻，为客户撰写连贯且易懂的梦境解析，结构请严格按照以下格式进行编写：
+                    
+                    亲爱的用户您好，以下是您的梦境分析:
+                    1. 梦境象征意义：
+                       - {summarized_folk}
+                       - 结合日常生活与心理学视角说明其可能反映的情感与需求
+                    
+                    2. 科学文献支持：
+                       - {summarized_sci}
+                       - 说明它们如何验证上述象征意义
+                    
+                    3. 心理状态总结与建议：
+                       - 概括客户当前的心理状态
+                       - 提供2–3条实际可行的温馨建议
+                    
+                    要求：
+                    - 必须以“梦境分析”标题开头
+                    - 严格输出上述三部分，不要多余说明
+                    - 语言自然连贯
+                    """
         else:
             prompt = f"""
-You are an empathetic and skilled dream analyst. Read the client’s dream context below and respond warmly in the first person (“I”), following this exact structure:
-
-Dream Analysis:
-
-1. Dream Symbolism Interpretation:
-   - Clearly decode the dream’s key symbols.
-   - Explain what each symbol might reveal about the client’s emotions or life circumstances.
-
-2. Scientific Literature Support:
-   - Cite 2–3 relevant studies or theoretical frameworks.
-   - Briefly explain how they validate your symbolism interpretation.
-
-3. Psychological Summary & Practical Advice:
-   - Summarize the client’s probable mental state.
-   - Offer 2–3 warm, actionable suggestions for reflection or coping.
-
-Requirements:
-- Output must start with “Dream Analysis:”
-- Only include the three sections above—no extra narrative or prompt text
-- Write in fluent, supportive English with varied sentence structure
-- Keep total length between 600 and 800 words
-"""
+                    You are an empathetic and skilled dream analyst. Read the client’s dream context below and respond warmly in the first person (“I”), please strictly following this exact structure:
+                    
+                    Dear Client, Here is the Dream Analysis for you:
+                    
+                    1. Dream Symbolism Interpretation:
+                       - {summarized_folk}
+                       - Explain what each symbol might reveal about the client’s emotions or life circumstances.
+                    
+                    2. Scientific Literature Support:
+                       - {summarized_sci}
+                       - Briefly explain how they validate your symbolism interpretation.
+                    
+                    3. Psychological Summary & Practical Advice:
+                       - Summarize the client’s probable mental state.
+                       - Offer 2–3 warm, actionable suggestions for reflection or coping.
+                    
+                    Requirements:
+                    - Output must start with “Dream Analysis:”
+                    - Only include the three sections above—no extra narrative or prompt text
+                    - Write in fluent, supportive English with varied sentence structure
+                    """
 
         # 4. Generate
         input_ids = tokenizer(
@@ -474,7 +473,7 @@ Requirements:
         raw_answer  = tokenizer.decode(gen_ids, skip_special_tokens=True)
 
         # 6. Trim anything before our header
-        header_tags = ("Dream Analysis:", "梦境分析")
+        header_tags = ("Dear Client", "亲爱的用户")
         for tag in header_tags:
             idx = raw_answer.find(tag)
             if idx != -1:
