@@ -457,7 +457,6 @@ async def analyze_dream(request: QueryRequest):
                     **Requirements:**  
                     - Reply only with these three sections—no extra commentary.  
                     - Write in fluent, warm, and supportive English using varied sentence structures.  
-                    - Keep the total length between 600–800 words.  
                     - Do not include any of your internal reasoning or the prompt itself.
                     """
 
