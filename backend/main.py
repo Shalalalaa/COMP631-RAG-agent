@@ -409,6 +409,8 @@ async def analyze_dream(request: QueryRequest):
             prompt = f"""
                     你是一位富有同理心且经验丰富的梦境分析师。请以第一人称、温暖亲切的口吻，为客户撰写一段完整的梦境解读，结构分为以下三部分：
 
+                    梦境分析：
+                    
                     1. 梦境象征意义  
                        简要解析梦中主要意象所代表的潜在含义，并结合生活经验阐明它们可能传递的心理信号。  
                        示例格式：  
@@ -439,8 +441,10 @@ async def analyze_dream(request: QueryRequest):
                 "Start writing immediately without internal reasoning."
             )
             prompt = f"""
-                    You are an empathetic and skilled dream analyst. Read the client’s dream context below, then respond warmly and personally in the first person (“I”) with a clear, three‑part interpretation:
+                    You are an empathetic and skilled dream analyst. Read the client’s dream context below, then respond warmly and personally in the first person (“I”) with a clear, three‑part interpretation. 
 
+                    Dream Analysis:
+                    
                     1. **Dream Symbolism Interpretation**  
                        Identify and explain the key symbols from the dream, illustrating what they might represent in the client’s waking life.
                     
@@ -453,6 +457,7 @@ async def analyze_dream(request: QueryRequest):
                     **Requirements:**  
                     - Reply only with these three sections—no extra commentary.  
                     - Write in fluent, warm, and supportive English using varied sentence structures.  
+                    - Keep the total length between 600–800 words.  
                     - Do not include any of your internal reasoning or the prompt itself.
                     """
 
@@ -472,10 +477,19 @@ async def analyze_dream(request: QueryRequest):
         )
 
         # Strip out prompt tokens
-        gen_ids = output_ids[0][ input_ids.shape[-1] : ]
-        answer = tokenizer.decode(gen_ids, skip_special_tokens=True)
-
-        return {"answer": answer}
+        gen_ids = output_ids[0][ input_ids.shape[-1]: ]
+        raw_answer = tokenizer.decode(gen_ids, skip_special_tokens=True)
+        
+        # Strip off any leading content before our header
+        for marker in ("Dream Analysis:", "梦境分析：", "梦境分析:"):
+            pos = raw_answer.find(marker)
+            if pos != -1:
+                clean_answer = raw_answer[pos:].strip()
+                break
+        else:
+            clean_answer = raw_answer.strip()
+        
+        return {"answer": clean_answer}
 
     except Exception as e:
         import traceback
