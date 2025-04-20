@@ -61,7 +61,7 @@ Open **two terminals**:
 **Terminal 1 (Backend):**
 
 ```bash
-cd ..
+cd COMP631-RAG-agent
 python -m backend.main
 ```
 
