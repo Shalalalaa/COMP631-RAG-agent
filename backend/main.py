@@ -307,7 +307,7 @@ retriever = MemmapRetriever(
     doc_ids_path="retriever/corpus_doc_ids.json",
     dimension=384,
     num_docs=len(json.load(open("retriever/corpus_doc_ids.json"))),
-    model_name="Lajavaness/bilingual-embedding-small"
+    model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 )
 print("✅ Retriever loaded.\n")
 
