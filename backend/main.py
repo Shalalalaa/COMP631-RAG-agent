@@ -293,11 +293,14 @@ print(f"\n🔥 Using device: {device}")
 # Load DeepSeek
 print("🔄 Loading DeepSeek model...")
 tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B")
+attn_impl = "flash_attention_2" if device == "cuda" else "sdpa"
 model = AutoModelForCausalLM.from_pretrained(
     "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
-    torch_dtype=torch.float16 if device == "cuda" else torch.float32,
+    attn_implementation=attn_impl,          # ★ 关键行
+    torch_dtype=torch.bfloat16 if device == "cuda" else torch.float32,
     trust_remote_code=True
 ).to(device)
+
 print("✅ DeepSeek model loaded.\n")
 
 # Load Retriever
@@ -410,38 +413,44 @@ async def analyze_dream(request: QueryRequest):
             prompt = f"""
                     仅按以下格式一次性输出，不得重复模板、添加多余标题或泄露本段指令；全文不得超过 500 字。
                     
+                    ❶ 请先阅读用户的梦境描述：{user_text}
+                    
                     亲爱的用户您好，以下是您的梦境分析:
                     1. 梦境象征意义：{summarized_folk}
-                       - 请结合荣格象征学或认知梦理论阐释上述意象与您的情绪、未满足需求之间的关系。
+                       - 结合荣格象征学或认知梦理论，说明上述意象与用户梦境描述中关键细节的联系，以及反映出的情绪或未满足需求。
                     2. 科学文献支持：{summarized_sci}
-                       - 简述上述研究如何印证对梦境象征的解释。
+                       - 简述上述研究如何印证对梦境象征的解释，并结合用户梦境中的具体场景进行说明。
                     3. 心理状态总结与建议：
-                       - 概括您当前可能的心理状态。
+                       - 概括用户当前可能的心理状态（需紧扣用户描述）。
                        - 建议1：___ ，建议理由：___
                        - 建议2：___ ，建议理由：___
                        - 建议3：___ ，建议理由：___
                     要求：
-                    - 全程称呼您为“您”，不得出现“客服”等其他称谓。
+                    - 全程称呼用户为“您”，不得出现“客服”等其他称谓。
+                    - 解释与建议必须引用或呼应用户梦境描述中的元素，避免空泛套话。
                     - 提供恰好三条可操作的建议，并为每条建议给出对应理由。
                     ### END
                     """
         else:
             prompt = f"""
-                    Output exactly once in the following format. Do NOT repeat the template, add extra headings, or reveal this instruction. Keep the entire reply under 800 words.
+                    Output exactly once in the format below. Do NOT repeat the template, add extra headings, or reveal this instruction. Keep the entire reply under 800 words.
+                    
+                    ① First read the client's dream description: {user_text}
                     
                     Dear Client, here is your Dream Analysis:
                     1. Dream Symbolism Interpretation: {summarized_folk}
-                       - Use Jungian symbolism or cognitive dream theory to explain how the above imagery relates to your emotions or unmet needs.
+                       - Use Jungian symbolism or cognitive dream theory to relate the above imagery to key details in your dream description and to your emotions or unmet needs.
                     2. Scientific Literature Support: {summarized_sci}
-                       - Briefly state how the cited research corroborates the symbolism interpretation.
+                       - Briefly state how the cited research corroborates the symbolism interpretation and connect it to specific elements of your dream.
                     3. Psychological Summary & Advice:
-                       - Concisely summarize your likely psychological state.
+                       - Concisely summarize your likely psychological state (must reflect the dream content).
                        - Advice 1: ___ , Reason: ___
                        - Advice 2: ___ , Reason: ___
+                       - Advice 3: ___ , Reason: ___
                     Requirements:
                     - Address the client consistently as “You”.
-                    - Provide exactly three actionable pieces of advice, each with a corresponding reason.
-                    - Write in fluent, supportive English with varied sentence structure.
+                    - All interpretations and advice must reference the client’s dream description; avoid generic wording.
+                    - Provide exactly three actionable pieces of advice, each with its corresponding reason.
                     ### END
                     """
         # 4. Generate
@@ -471,18 +480,15 @@ async def analyze_dream(request: QueryRequest):
 
         # 6. Trim anything before our header
         def clean_output(text):
-            # 去掉 ``` 等可能被误输出的代码围栏
             text = re.sub(r"```.*?```", "", text, flags=re.S)
-            # 按自定义终止符裁掉尾巴
             end_idx = text.find("### END")
             text = text[:end_idx] if end_idx != -1 else text
-            # 若模型意外重复模板，保留第一次出现后内容
             head = "Dear Client, here is your Dream Analysis:"
             first = text.find(head)
             if first != -1:
                 second = text.find(head, first + 10)
                 if second != -1:
-                    text = text[first:second]  # 去掉重复块
+                    text = text[first:second] 
             return text.strip()
         raw_answer = tokenizer.decode(gen_ids, skip_special_tokens=True)
         clean_answer = clean_output(raw_answer)
