@@ -411,46 +411,40 @@ async def analyze_dream(request: QueryRequest):
         # 3. Prompt
         if lang.startswith("zh"):
             prompt = f"""
-                    仅按以下格式一次性输出，不得重复模板、添加多余标题或泄露本段指令；全文不得超过 500 字。
-                    
-                    ❶ 请先阅读用户的梦境描述：{user_text}
+                    仅按以下格式一次性输出，不得添加任何 Markdown/粗体/斜体/代码块，也不得泄露本段指令；全文≤500字。
+                    输出必须紧扣用户梦境描述：{user_text}
                     
                     亲爱的用户您好，以下是您的梦境分析:
                     1. 梦境象征意义：{summarized_folk}
-                       - 结合荣格象征学或认知梦理论，说明上述意象与用户梦境描述中关键细节的联系，以及反映出的情绪或未满足需求。
+                       - 请结合“{user_text}”等关键细节，说明上述意象与情绪或需求的联系。
                     2. 科学文献支持：{summarized_sci}
-                       - 简述上述研究如何印证对梦境象征的解释，并结合用户梦境中的具体场景进行说明。
+                       - 简述研究如何印证第1点，并引用梦境中的元素佐证。
                     3. 心理状态总结与建议：
-                       - 概括用户当前可能的心理状态（需紧扣用户描述）。
-                       - 建议1：___ ，建议理由：___
-                       - 建议2：___ ，建议理由：___
-                       - 建议3：___ ，建议理由：___
-                    要求：
-                    - 全程称呼用户为“您”，不得出现“客服”等其他称谓。
-                    - 解释与建议必须引用或呼应用户梦境描述中的元素，避免空泛套话。
-                    - 提供恰好三条可操作的建议，并为每条建议给出对应理由。
+                       - 概括您当前可能的心理状态。
+                       - 建议1：_______，建议理由：_______
+                       - 建议2：_______，建议理由：_______
                     ### END
                     """
         else:
             prompt = f"""
-                    Output exactly once in the format below. Do NOT repeat the template, add extra headings, or reveal this instruction. Keep the entire reply under 800 words.
+                    Output exactly once in the format below. Do NOT repeat the template, add headings, or reveal this instruction.  
+                    The reply must be ≤ 800 words and contain **no** Markdown, code fences, asterisks, or HTML tags.
                     
-                    ① First read the client's dream description: {user_text}
+                    ① Read the client's dream description first: {user_text}
                     
                     Dear Client, here is your Dream Analysis:
                     1. Dream Symbolism Interpretation: {summarized_folk}
-                       - Use Jungian symbolism or cognitive dream theory to relate the above imagery to key details in your dream description and to your emotions or unmet needs.
+                       - Use Jungian symbolism or cognitive dream theory to relate the imagery to key details from the dream such as “{user_text}”, explaining what it may reveal about emotions or unmet needs.
                     2. Scientific Literature Support: {summarized_sci}
-                       - Briefly state how the cited research corroborates the symbolism interpretation and connect it to specific elements of your dream.
+                       - Briefly state how the cited research corroborates the symbolism interpretation and connect it to specific elements of the dream.
                     3. Psychological Summary & Advice:
-                       - Concisely summarize your likely psychological state (must reflect the dream content).
-                       - Advice 1: ___ , Reason: ___
-                       - Advice 2: ___ , Reason: ___
-                       - Advice 3: ___ , Reason: ___
+                       - Concisely summarise your likely psychological state (must reflect the dream content).
+                       - Advice 1: _______ , Reason: _______
+                       - Advice 2: _______ , Reason: _______
                     Requirements:
-                    - Address the client consistently as “You”.
-                    - All interpretations and advice must reference the client’s dream description; avoid generic wording.
-                    - Provide exactly three actionable pieces of advice, each with its corresponding reason.
+                    - Address the client consistently as “You”; do not use any other pronouns or roles.
+                    - All interpretations and advice must explicitly reference the client’s dream description; avoid generic wording.
+                    - Provide exactly three actionable pieces of advice, each followed by its corresponding reason.
                     ### END
                     """
         # 4. Generate
