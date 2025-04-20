@@ -375,8 +375,6 @@ def detect_language(text):
         lang = 'en'
     return lang
     
-lang = detect_language(user_text)
-
 fallback_sci_zh = "根据弗洛伊德的梦的解析理论，梦境是潜意识欲望的表现，反映了内心未满足的需求和情感冲突。"
 fallback_sci_en = "According to Freud's theory of dream interpretation, dreams represent unconscious desires and reflect hidden emotional conflicts."
 
