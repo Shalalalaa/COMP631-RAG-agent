@@ -307,7 +307,7 @@ retriever = MemmapRetriever(
     doc_ids_path="retriever/corpus_doc_ids.json",
     dimension=384,
     num_docs=len(json.load(open("retriever/corpus_doc_ids.json"))),
-    model_name="Lajavaness/bilingual-embedding-small"
+    model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 )
 print("✅ Retriever loaded.\n")
 
@@ -409,7 +409,7 @@ async def analyze_dream(request: QueryRequest):
         if lang.startswith("zh"):
             prompt = f"""
                     你是一位富有同理心且经验丰富的梦境分析师。
-                    请以第一人称“我”温暖亲切的口吻，为客户撰写连贯且易懂的梦境解析，结构请严格按照以下格式进行编写：
+                    请以第一人称“我”温暖亲切的口吻并称呼对方为您，为客户撰写连贯且易懂的梦境解析，结构请严格按照以下格式进行编写：
                     
                     亲爱的用户您好，以下是您的梦境分析:
                     1. 梦境象征意义：
@@ -431,7 +431,7 @@ async def analyze_dream(request: QueryRequest):
                     """
         else:
             prompt = f"""
-                    You are an empathetic and skilled dream analyst. Read the client’s dream context below and respond warmly in the first person (“I”), please strictly following this exact structure:
+                    You are an empathetic and skilled dream analyst. Read the client’s dream context below and respond warmly in the first person (“I”) and treat the client as "You", please strictly following this exact structure:
                     
                     Dear Client, Here is the Dream Analysis for you:
                     
@@ -473,14 +473,7 @@ async def analyze_dream(request: QueryRequest):
         raw_answer  = tokenizer.decode(gen_ids, skip_special_tokens=True)
 
         # 6. Trim anything before our header
-        header_tags = ("Dear Client", "亲爱的用户")
-        for tag in header_tags:
-            idx = raw_answer.find(tag)
-            if idx != -1:
-                clean_answer = raw_answer[idx:].strip()
-                break
-        else:
-            clean_answer = raw_answer.strip()
+        clean_answer = re.sub(r'^<think>.*?<think>', '', raw_answer, flags=re.DOTALL).strip()
 
         return {"answer": clean_answer}
 
