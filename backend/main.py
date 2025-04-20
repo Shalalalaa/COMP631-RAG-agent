@@ -485,7 +485,7 @@ async def analyze_dream(request: QueryRequest):
                     text = text[first:second]  # 去掉重复块
             return text.strip()
         raw_answer = tokenizer.decode(gen_ids, skip_special_tokens=True)
-        clean_answer = clean_output(raw_answer, lang)
+        clean_answer = clean_output(raw_answer)
 
         return {"answer": clean_answer}
 
