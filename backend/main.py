@@ -383,9 +383,10 @@ fallback_sci_en = "According to Freud's theory of dream interpretation, dreams r
 async def analyze_dream(request: QueryRequest):
     try:
         user_text = request.text
-        deep_thinking = request.deep_thinking
+        # Always respond in the user's input language
+        lang = detect_language(user_text)
 
-        # Retrieval
+        # 1. Retrieval
         query = {"q1": user_text}
         results = retriever.search(query, top_k=20)
         folk_contents, sci_contents = [], []
@@ -398,69 +399,62 @@ async def analyze_dream(request: QueryRequest):
             if len(folk_contents) >= 5 and len(sci_contents) >= 3:
                 break
 
-        # Summarization
+        # 2. Summarization
         summarized_folk = quick_summarize_clean(folk_contents, user_text)
-        summarized_sci = quick_summarize_clean(sci_contents, user_text)
+        summarized_sci  = quick_summarize_clean(sci_contents, user_text)
         if not summarized_sci or len(summarized_sci) < 30:
-            summarized_sci = fallback_sci_zh if detect_language(user_text) == "zh" else fallback_sci_en
+            summarized_sci = fallback_sci_zh if lang.startswith("zh") else fallback_sci_en
 
-        # Prompt construction
-        if detect_language(user_text) == "zh-cn":
+        # 3. Prompt
+        if lang.startswith("zh"):
             prompt = f"""
-                    你是一位富有同理心且经验丰富的梦境分析师。请以第一人称、温暖亲切的口吻，为客户撰写一段完整的梦境解读，结构分为以下三部分：
+你是一位富有同理心且经验丰富的梦境分析师。
+请以第一人称“我”温暖亲切的口吻，为客户撰写连贯且易懂的梦境解析，结构分为三部分：
 
-                    梦境分析：
-                    
-                    1. 梦境象征意义  
-                       简要解析梦中主要意象所代表的潜在含义，并结合生活经验阐明它们可能传递的心理信号。  
-                       示例格式：  
-                       - “我在梦中……象征着……”  
-                       - “这可能反映了……”  
-                    
-                    2. 科学文献支持  
-                       用简练语言引用 2–3 条相关研究或理论，说明这些象征意义在心理学或神经科学中的依据。  
-                       示例格式：  
-                       - “研究表明……”  
-                       - “根据 XX 理论……”  
-                    
-                    3. 心理状态总结与建议  
-                       汇总上述象征与科学视角，对客户当前的心理状态进行推测，并以鼓励和启发性的方式给出切实可行的建议。  
-                       示例格式：  
-                       - “我相信你现在可能感到……”  
-                       - “你可以尝试……”  
-                    
-                    **要求：**  
-                    - 用中文回答，语言自然流畅  
-                    - 以第一人称“我”进行叙述  
-                    - 仅输出上述三部分内容，不要额外说明编写思路或技术细节  
-                    """
-        elif detect_language(user_text) == "en":
-            reasoning = (
-                "Before writing, silently conduct internal reasoning to organize your thoughts. Do not output any reasoning process."
-                if deep_thinking else
-                "Start writing immediately without internal reasoning."
-            )
+【梦境分析】
+1. 梦境象征意义：
+   - 解读梦中关键意象的潜在含义
+   - 结合日常生活与心理学视角说明其可能反映的情感与需求
+
+2. 科学文献支持：
+   - 简洁引用2–3条相关研究或经典理论
+   - 说明它们如何验证上述象征意义
+
+3. 心理状态总结与建议：
+   - 概括客户当前的心理状态
+   - 提供2–3条实际可行的温馨建议
+
+要求：
+- 必须以“梦境分析”标题开头
+- 严格输出上述三部分，不要多余说明
+- 全文600–800字，语言自然连贯
+"""
+        else:
             prompt = f"""
-                    You are an empathetic and skilled dream analyst. Read the client’s dream context below, then respond warmly and personally in the first person (“I”) with a clear, three‑part interpretation. 
+You are an empathetic and skilled dream analyst. Read the client’s dream context below and respond warmly in the first person (“I”), following this exact structure:
 
-                    Dream Analysis:
-                    
-                    1. **Dream Symbolism Interpretation**  
-                       Identify and explain the key symbols from the dream, illustrating what they might represent in the client’s waking life.
-                    
-                    2. **Scientific Literature Support**  
-                       Reference 2–3 relevant studies or psychological theories that back up your interpretations.
-                    
-                    3. **Psychological Summary & Practical Advice**  
-                       Summarize the client’s likely emotional state and offer encouraging, actionable suggestions for reflection or next steps.
-                    
-                    **Requirements:**  
-                    - Reply only with these three sections—no extra commentary.  
-                    - Write in fluent, warm, and supportive English using varied sentence structures.  
-                    - Do not include any of your internal reasoning or the prompt itself.
-                    """
+Dream Analysis:
 
-        # Generate response
+1. Dream Symbolism Interpretation:
+   - Clearly decode the dream’s key symbols.
+   - Explain what each symbol might reveal about the client’s emotions or life circumstances.
+
+2. Scientific Literature Support:
+   - Cite 2–3 relevant studies or theoretical frameworks.
+   - Briefly explain how they validate your symbolism interpretation.
+
+3. Psychological Summary & Practical Advice:
+   - Summarize the client’s probable mental state.
+   - Offer 2–3 warm, actionable suggestions for reflection or coping.
+
+Requirements:
+- Output must start with “Dream Analysis:”
+- Only include the three sections above—no extra narrative or prompt text
+- Write in fluent, supportive English with varied sentence structure
+- Keep total length between 600 and 800 words
+"""
+
+        # 4. Generate
         input_ids = tokenizer(
             prompt,
             return_tensors="pt",
@@ -470,24 +464,25 @@ async def analyze_dream(request: QueryRequest):
         ).input_ids.to(device)
         output_ids = model.generate(
             input_ids,
-            max_new_tokens=800 if deep_thinking else 600,
+            max_new_tokens=600,
             temperature=0.7,
             pad_token_id=tokenizer.eos_token_id
         )
 
-        # Strip out prompt tokens
-        gen_ids = output_ids[0][ input_ids.shape[-1]: ]
-        raw_answer = tokenizer.decode(gen_ids, skip_special_tokens=True)
-        
-        # Strip off any leading content before our header
-        for marker in ("Dream Analysis:", "梦境分析：", "梦境分析:"):
-            pos = raw_answer.find(marker)
-            if pos != -1:
-                clean_answer = raw_answer[pos:].strip()
+        # 5. Extract only the generated part
+        gen_ids     = output_ids[0][ input_ids.shape[-1] : ]
+        raw_answer  = tokenizer.decode(gen_ids, skip_special_tokens=True)
+
+        # 6. Trim anything before our header
+        header_tags = ("Dream Analysis:", "梦境分析")
+        for tag in header_tags:
+            idx = raw_answer.find(tag)
+            if idx != -1:
+                clean_answer = raw_answer[idx:].strip()
                 break
         else:
             clean_answer = raw_answer.strip()
-        
+
         return {"answer": clean_answer}
 
     except Exception as e:
