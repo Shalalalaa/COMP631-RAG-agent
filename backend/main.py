@@ -273,6 +273,7 @@ from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from huggingface_hub import hf_hub_download
 from sentence_transformers import SentenceTransformer, util
+from langdetect import detect
 
 # Disable Hugging Face symlink warning
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
@@ -368,10 +369,13 @@ def quick_summarize_clean(texts, query_text, max_sentences=3):
     return summarized_text
 
 def detect_language(text):
-    for ch in text:
-        if '\u4e00' <= ch <= '\u9fff':
-            return "zh"
-    return "en"
+    try:
+        lang = detect(text)    # returns 'zh-cn','en','es','fr', etc.
+    except:
+        lang = 'en'
+    return lang
+    
+lang = detect_language(user_text)
 
 fallback_sci_zh = "根据弗洛伊德的梦的解析理论，梦境是潜意识欲望的表现，反映了内心未满足的需求和情感冲突。"
 fallback_sci_en = "According to Freud's theory of dream interpretation, dreams represent unconscious desires and reflect hidden emotional conflicts."
@@ -405,9 +409,9 @@ async def analyze_dream(request: QueryRequest):
         # Prompt construction
         if detect_language(user_text) == "zh":
             prompt = f"""
-                    你是一位经验丰富的梦境分析师。
+                    你是一位经验丰富的梦境分析师,现在你需要为你的客户进行梦境分析，以第一人称亲切的为其解答
                     
-                    请根据以下内容直接撰写连贯自然的梦境解析，分为以下三部分：
+                    请根据以下内容撰写连贯自然的梦境解析，分为以下三部分：
                     
                     [梦境象征意义]
                     {summarized_folk}
@@ -419,8 +423,7 @@ async def analyze_dream(request: QueryRequest):
                     结合梦境象征与科学理论推测用户心理状态，并给予积极、温暖、具有启发性的建议。
                     
                     要求：
-                    - 必须直接输出三部分内容
-                    - 不要解释你的思考过程
+                    - 必须输出三部分内容
                     - 保持中文，自然连贯，逻辑清晰
                     - 总字数控制在600-800字
                     """
@@ -431,11 +434,11 @@ async def analyze_dream(request: QueryRequest):
                 "Start writing immediately without internal reasoning."
             )
             prompt = f"""
-                    You are an experienced dream analyst.
+                    You are an experienced dream analyst, and now you need to interpret a dream for your client. Respond warmly and personally in the first person.
                     
                     {reasoning}
                     
-                    Based on the content below, immediately write a coherent and natural dream analysis structured into three sections:
+                    Based on the content below, write a coherent and natural dream analysis structured into three sections:
                     
                     1. [Dream Symbolism Interpretation]
                     {summarized_folk}
