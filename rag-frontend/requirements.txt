@@ -1,0 +1,7 @@
+npm install lucide-react
+npm install next-themes
+npm install -D @shadcn/ui
+npx shadcn@latest init
+
+npx shadcn@latest add button card textarea tabs badge scroll-area collapsible dropdown-menu
+npm install framer-motion lucide-react next-themes @ai-sdk/openai ai
